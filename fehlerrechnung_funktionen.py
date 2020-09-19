@@ -21,6 +21,32 @@ import matplotlib.pyplot as plt
 def f(x, m, b):
     return m*x+b
 
+
+
+def fitAndPlot(X, Y, ax = None, f = f, function = "m*x+b", label = None, color = None):
+    x, xerr, y, yerr = *X, *Y
+    popt, pcov = curve_fit(f, x, y)
+    coef = np.transpose(np.array((popt, np.sqrt(np.diag(pcov)))))
+    print(coef)
+    vString = ", "
+    i = 1
+    for co in coef:
+        print(roundwitherror(*co))
+        print(type(co[1]))
+        vString += "a_%s = %.4g \u00b1 %.4g\n" % (i, *roundwitherror(*co))
+        i += 1
+    X = np.linspace(np.min(x), np.max(x))
+    plt.errorbar(x = x, xerr = xerr, y = y, yerr = yerr, capsize = 2, elinewidth = 1, lw = 0)
+    plt.plot(X, f(X, *popt), color = color, lw = 0.6, label = function + vString)
+    plt.legend()
+    plt.show()
+
+    #return popt, perr
+
+
+
+
+
 def linearize(x, y, ax, label = None, color = None):
     popt, pcov = curve_fit(f, x, y)
     perr = np.sqrt(np.diag(pcov))
@@ -85,8 +111,14 @@ def roundwitherror(x,err):
     if type(err) == list and len(err) == 1:
         err = err[0]
 
-    if err == 0:
+
+
+    if (type(err) != int) and (type(err) != float) and (type(err) != np.int64) and (type(err) != np.float64):
+        return x, err
+    elif err == 0:
         return x, 0
+    elif err == np.inf:
+        return x, err
     else:
         k = err*(10**(getdecimals(err)))
         

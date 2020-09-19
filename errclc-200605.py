@@ -8,7 +8,7 @@ from scipy.optimize import curve_fit
 
 import sys
 sys.path.append("/home/ole/Desktop/Projekt_1")
-from fehlerrechnung_funktionen import roundwitherror, listErrorCalc, listifyString, killchars, paste2clip
+from fehlerrechnung_funktionen import roundwitherror, listErrorCalc, listifyString, killchars, paste2clip, fitAndPlot
 
 import pprint
 import time as t
@@ -44,13 +44,16 @@ class PlotPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
-        self.xName = ""
-        self.yName = ""
-        self.xData = ""
-        self.yData = ""
+        self.xName = tk.StringVar()
+        self.yName = tk.StringVar()
+        self.xData = tk.StringVar()
+        self.yData = tk.StringVar()
 
 
         tk.Button(self, text = "Back", command = lambda: controller.show_frame("PageOne")).grid(row = 0, column = 0)
+        self.plotbutton = tk.Button(self, text = "Plot", 
+        command = lambda:fitAndPlot(PageOne.data[self.xData.get()], PageOne.data[self.yData.get()]))
+        self.plotbutton.grid(row = 5, column = 0)
 
         tk.Entry(self, textvariable = self.xName).grid(row = 1, column = 1)
         tk.Entry(self, textvariable = self.yName).grid(row = 2, column = 1)
