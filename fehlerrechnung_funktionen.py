@@ -1,3 +1,33 @@
+"""
+module containing the functions used in the main program errclc.py
+mainly the functions are used to calculated tangent slopes numerically on n-dimensional
+surfaces
+
+
+example for the use of the function listErrorCalc:
+
+the first input value will be of type dict and will have the structure
+data[variable_name][[x1, x1, and so on...], [xerr1, xerr2, and so on...]]
+so a list consisting of two lists which will contain a value and its error at similar indices.
+for constants, brackets may be omitted as the function will map shorter lists with less entries to
+longer lists with more entries by
+iterating  on the entries in those list more slowly.
+
+the second input valie will be of type string and should contain the formula to be applied to the
+data in a shape recognizable by python.
+trigonometric and other common mathematical functions need not be specifically named of imported
+since they're already imported by default
+withing this module.
+
+the function returns a list of two lists which are the calculated values and their errors and
+similar indeces.
+so an example of using the function in practice may look like this:
+data={"var1":[[x1, x2, and so on... ], [xerr1, xerr2, and so on... ]],
+"var2":((y1, y2, and so on... ), (yerr1, yerr2, and so on...))}
+formula="var1/var2"
+data["newvar"]=listErrorCalc(data, formula)
+"""
+
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import math as m
@@ -7,23 +37,24 @@ import decimal
 import pyperclip as ppc
 
 """
-font = {'family' : 'normal',
+font={'family' : 'normal',
         'weight' : 'normal',
         'size'   : 12}
 """
-font = {'weight' : 'normal',
-        'size'   : 12}
+font = {'weight':'normal',
+      'size':12}
 import matplotlib
 matplotlib.rc('font', **font)
 import matplotlib.pyplot as plt
 
-
 def f(x, m, b):
     return m*x+b
 
-
-
-def fitAndPlot(X, Y, ax = None, f = f, function = "m*x+b", label = None, color = None):
+def fitAndPlot(X, Y, ax=None, f=f, function="m*x+b", label=None, color=None):
+    """
+    function fits data to a given functionen using scipy.optimize.curve_fit and plots that data to
+    a given axis.
+    """
     x, xerr, y, yerr = *X, *Y
     popt, pcov = curve_fit(f, x, y)
     coef = np.transpose(np.array((popt, np.sqrt(np.diag(pcov)))))
@@ -33,28 +64,24 @@ def fitAndPlot(X, Y, ax = None, f = f, function = "m*x+b", label = None, color =
     for co in coef:
         print(roundwitherror(*co))
         print(type(co[1]))
-        vString += "a_%s = %.4g \u00b1 %.4g\n" % (i, *roundwitherror(*co))
+        vString += "a_%s=%.4g \u00b1 %.4g\n" % (i, *roundwitherror(*co))
         i += 1
     X = np.linspace(np.min(x), np.max(x))
-    plt.errorbar(x = x, xerr = xerr, y = y, yerr = yerr, capsize = 2, elinewidth = 1, lw = 0)
-    plt.plot(X, f(X, *popt), color = color, lw = 0.6, label = function + vString)
+    plt.errorbar(x=x, xerr=xerr, y=y, yerr=yerr, capsize=2, elinewidth=1, lw=0)
+    plt.plot(X, f(X, *popt), color=color, lw=0.6, label=function + vString)
     plt.legend()
     plt.show()
 
     #return popt, perr
 
-
-
-
-
-def linearize(x, y, ax, label = None, color = None):
+def linearize(x, y, ax, label=None, color=None):
     popt, pcov = curve_fit(f, x, y)
     perr = np.sqrt(np.diag(pcov))
     ((m, b), (merr, berr)) = popt, perr
     print(roundwitherror(m, merr), roundwitherror(b, berr))
-    X = np.linspace(np.min(x), np.max(x))
-    ax.plot(X, f(X, m, b),color = color, lw = 0.5, 
-                           label = "f = mx+b, m = %.4g \u00b1 %.4g,\nb = %.4g \u00b1 %.4g" % 
+    X=np.linspace(np.min(x), np.max(x))
+    ax.plot(X, f(X, m, b),color=color, lw=0.5, 
+                           label="f=mx+b, m=%.4g \u00b1 %.4g,\nb=%.4g \u00b1 %.4g" % 
                            (*roundwitherror(m, merr), *roundwitherror(b, berr)))
     
 
@@ -63,6 +90,9 @@ def linearize(x, y, ax, label = None, color = None):
 
 
 def killchars(s, chars):
+    """
+    removes the characters in chars from a string s and returns that string again.
+    """
     for char in chars:
         ss = s.split(char)
         S = ""
@@ -71,7 +101,11 @@ def killchars(s, chars):
         s = S
     return s
 
-def listifyString(s, delimiter, ignorePercent = True):
+def listifyString(s, delimiter, ignorePercent=True):
+    """
+    takes a string which is assumed to have multiple semi-numerical elements within it
+    and separates them according to the given delimiter
+    """
     if len(s) == 0:
         return [0]
     else:
@@ -85,10 +119,17 @@ def listifyString(s, delimiter, ignorePercent = True):
         return L
 
 def round_up(n, decimals=0):
+    """
+    rounds a number up to a given degree of decimals
+    """
     multiplier = 10 ** decimals
     return m.ceil(n * multiplier) / multiplier #das ist alles nur geklaut-von den prinzen(aus dem internetz)
 
 def getdecimals(x):
+    """
+    returns the number of decimal places within a number, orders of magnitude over 1 i.e. 10, 100, 1000
+    will be returned as a negative number of decimal accuracy
+    """
     X = str(x).strip("[]")
     if "e" in X:
         a, b = X.split("e")
@@ -106,6 +147,9 @@ def getdecimals(x):
         return -len(X)
 
 def roundwitherror(x,err):
+    """
+    rounds a number with a given error to the precision of that error, after it has rounded the error up
+    """
     if type(x) == list and len(x) == 1:
         x = x[0]
     if type(err) == list and len(err) == 1:
@@ -132,25 +176,44 @@ def roundwitherror(x,err):
         return rx, rerr
 
 def pop_arg(args, xarg): #this might be useless at this point
+    """
+    deprecated legacy module from old version of the program
+    """
     for arg in args.split(","):
         if xarg in arg:
             args.remove(arg)
     return args #maybe just remove this shit
 
-def get_slope(function, allargs, xarg, tolerance = 0.000001): # die partielle ableitung von function mit den argumenten args nach xarg an der stelle xarg
-    #args = pop_arg(allargs, xarg)#stellt sich heraus dass das total unnötig war
+def get_slope(function, allargs, xarg, tolerance=0.000001):
+    """
+    die partielle ableitung von function mit den argumenten args nach xarg an der stelle xarg
+    args=pop_arg(allargs, xarg)#stellt sich heraus dass das total unnötig war
+    returns the slope of the function with respect to the given argument at the given point allargs
+    """ 
     args = allargs
-    dx =  1
-    slope_last = ((calc_custom_func(function,str(args)+","+str(xarg)+"+"+str(dx)))-(calc_custom_func(function,str(args)+","+str(xarg)+"-"+str(dx))))/(2*dx)
+    dx = 1
+    slope_last = (
+        (calc_custom_func(function,str(args)+","+str(xarg)+"+"+str(dx)))-
+        (calc_custom_func(function,str(args)+","+str(xarg)+"-"+str(dx)))
+        )/(2*dx)
     dx *= 0.1
-    slope_new = ((calc_custom_func(function,str(args)+","+str(xarg)+"+"+str(dx)))-(calc_custom_func(function,str(args)+","+str(xarg)+"-"+str(dx))))/(2*dx)
-    while abs(slope_new-slope_last)> tolerance:
+    slope_new = (
+        (calc_custom_func(function,str(args)+","+str(xarg)+"+"+str(dx)))-
+        (calc_custom_func(function,str(args)+","+str(xarg)+"-"+str(dx)))
+        )/(2*dx)
+    while abs(slope_new-slope_last) > tolerance:
     	slope_last = slope_new
     	dx *= 0.5
-    	slope_new = ((calc_custom_func(function,str(args)+","+str(xarg)+"+"+str(dx)))-(calc_custom_func(function,str(args)+","+str(xarg)+"-"+str(dx))))/(2*dx)
+    	slope_new = (
+            (calc_custom_func(function,str(args)+","+str(xarg)+"+"+str(dx)))-
+            (calc_custom_func(function,str(args)+","+str(xarg)+"-"+str(dx)))
+            )/(2*dx)
     return slope_new
 
-def find_minimum(function, allargs, xarg, tolerance = 0.001, right_bound = 10, left_bound = -10):
+def find_minimum(function, allargs, xarg, tolerance=0.001, right_bound=10, left_bound=-10):
+    """
+    finds the minimum slope of the function
+    """
     if right_bound and left_bound != 0:
         interval = (right_bound - left_bound)/2
         x_min = right_bound
@@ -162,15 +225,22 @@ def find_minimum(function, allargs, xarg, tolerance = 0.001, right_bound = 10, l
         if new_slope > 0:
             x_min -= interval
             interval /= 2
-        #print(x_min)
     return x_min
 
 def calc_custom_func(function, args):
+    """
+    executes a function which is given as a string, which has args as variables
+    """
     for arg in args.split(","):
         exec(arg)
     return eval(function)
 
-def error_calc(function, values):#values is of type dict, with a real value and an error attached###values should be handled through a list of dicts, each entry representing one set of corresponding values.
+def error_calc(function, values):
+    """
+    values is of type dict, with a real value and an error attached
+    values should be handled through a list of dicts, each entry representing one set of 
+    corresponding values.
+    """
     error = 0#alt und scheisse
     keys = values.keys()
     vals = []
@@ -192,7 +262,11 @@ def error_calc(function, values):#values is of type dict, with a real value and 
     trueval = calc_custom_func(function, allargs)
     return trueval, error
 
-def new_error_calc(function, values): #function is of type string. something like "m*v**2". while values is a dictionary of lists {"m":[34,6], "v":[3,1]}
+def new_error_calc(function, values):
+    """
+    function is of type string. something like "m*v**2". 
+    while values is a dictionary of lists {"m":[34,6], "v":[3,1]}
+    """
     error = 0
     keys = values.keys()
     args = ""
@@ -205,28 +279,33 @@ def new_error_calc(function, values): #function is of type string. something lik
 
 """#legacy version of this function without input listification and generally worse overall.
 def listErrorCalc(data, function):
-    result = [[], []]
-    keys = data.keys()
-    lens = []
+    result=[[], []]
+    keys=data.keys()
+    lens=[]
     for key in keys:
     	if type(data[key][0]) == list or tuple:
         	lens.append(len(data[key][0]))
     	if type(data[key][0]) == list or tuple:
         	lens.append(len(data[key][1]))
     
-    i = 0
+    i=0
     while i < min(lens): #die bedingung muss erst noch geschaffen werden.
-        d = {}
+        d={}
         for key in keys:
-            d[key] = [data[key][0][i], data[key][1][i]]
-        x, xerr = new_error_calc(function, d)
+            d[key]=[data[key][0][i], data[key][1][i]]
+        x, xerr=new_error_calc(function, d)
         result[0].append(x)
         result[1].append(xerr)
         i += 1
     return result
 """
 
-def listErrorCalc(data, function, roundput = False): #i know most of my annotations are troll-bullshit that helps nobody but this ain't NASA so i can do whatever the fuck i want motherfucker
+def listErrorCalc(data, function, roundput=False):
+    """
+    i know most of my annotations are troll-bullshit that helps nobody but this
+    ain't NASA so i can do whatever the fuck i want motherfucker
+    ^^ i'll never get anywhere with that mindset LOL
+    """
     data = listifyData(data)
     result = [[], []]
     keys = data.keys()
@@ -254,7 +333,7 @@ def listErrorCalc(data, function, roundput = False): #i know most of my annotati
             print("Type error in list conversion")
     j = max(lens)
     for key in keys:    #this makes it so that lists of different lenghts are stretched to accomodate eachother. constants are now possible by just typing them and leaving them as is
-        indexdict[key][0] = [indexdict[key][0]/j, 0]#fick dich python du schlange dafür dass du tuple mit len(t) = 1 zu int umfickst
+        indexdict[key][0] = [indexdict[key][0]/j, 0]#fick dich python du schlange dafür dass du tuple mit len(t)=1 zu int umfickst
         indexdict[key][1] = [indexdict[key][1]/j, 0]#oh gott dieser käse mit den indizes fliegt mir noch um die ohren...
     i = 0
     while i < max(lens): #die bedingung muss erst noch geschaffen werden.
@@ -277,6 +356,9 @@ def listErrorCalc(data, function, roundput = False): #i know most of my annotati
     return result
         
 def roundList(X):
+    """
+    rounds an entire list of value-error-pairs using roundwitherror()
+    """
     Y = [[], []]
     i = 0
     while i < len(X[0]):
@@ -285,8 +367,12 @@ def roundList(X):
         Y[1].append(b)
     return Y
 #lmao ima l33t haxxor xd
-def listifyData(data): #this is the price you pay for soft-typed languages. 
-    for d in data:  #sanitize your input and wash yo ass
+def listifyData(data):
+    """
+    this is the price you pay for soft-typed languages.
+    sanitize your input and wash yo ass 
+    """
+    for d in data:  
         t = type(data[d])
         if t == list:
             pass
@@ -307,18 +393,18 @@ def listifyData(data): #this is the price you pay for soft-typed languages.
 def linf(x, m, b):
     return m*x+b
 
-def linPlot(dat, xName, yName, xLabel, yLabel, color = "b", label = None, title = None, fit = True):
+def linPlot(dat, xName, yName, xLabel, yLabel, color="b", label=None, title=None, fit=True):
     x, xerr, y, yerr = dat[xName][0], dat[xName][1], dat[yName][0], dat[yName][1]
     print(dat)
     dat = listifyData(dat)
     print(dat)
     popt, pcov = curve_fit(linf, x, y)
     perr = np.sqrt(np.diag(pcov))
-    plt.errorbar(x = x, xerr = xerr, y = y, yerr = yerr, capsize = 2, elinewidth = 1, lw = 0, color = color, label = label)
+    plt.errorbar(x=x, xerr=xerr, y=y, yerr=yerr, capsize=2, elinewidth=1, lw=0, color=color, label=label)
     X = np.arange(min(x), max(x), (max(x) - min(x))/100)
     m ,merr, b, berr = popt[0], perr[0], popt[1], perr[1]
     if fit == True:
-        plt.plot(X, linf(X, m, b), color = color, lw = 0.7, label = "f = mx+b, m = %.4g \u00b1 %.4g, b = %.4g \u00b1 %.4g" % (*roundwitherror(m, merr), *roundwitherror(b, berr)))
+        plt.plot(X, linf(X, m, b), color=color, lw=0.7, label="f=mx+b, m=%.4g \u00b1 %.4g, b=%.4g \u00b1 %.4g" % (*roundwitherror(m, merr), *roundwitherror(b, berr)))
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
     plt.title(title)
@@ -328,18 +414,18 @@ def linPlot(dat, xName, yName, xLabel, yLabel, color = "b", label = None, title 
 def expf(x, k, a):
     return a*(1-k**(-x))
 
-def expPlot(dat, xName, yName, xLabel, yLabel, color = "b", label = None, title = None, fit = True):
+def expPlot(dat, xName, yName, xLabel, yLabel, color="b", label=None, title=None, fit=True):
     x, xerr, y, yerr = dat[xName][0], dat[xName][1], dat[yName][0], dat[yName][1]
     print(dat)
     dat = listifyData(dat)
     print(dat)
     popt, pcov = curve_fit(expf, x, y)
     perr = np.sqrt(np.diag(pcov))
-    plt.errorbar(x = x, xerr = xerr, y = y, yerr = yerr, capsize = 2, elinewidth = 1, lw = 0, color = color, label = label)
+    plt.errorbar(x=x, xerr=xerr, y=y, yerr=yerr, capsize=2, elinewidth=1, lw=0, color=color, label=label)
     X = np.arange(min(x), max(x), (max(x) - min(x))/100)
     k ,kerr, a, aerr = popt[0], perr[0], popt[1], perr[1]
     if fit == True:
-        plt.plot(X, expf(X, k ,a), color = color, lw = 0.7, label = "f = a*(1-k**(-x)), k = %.4g \u00b1 %.4g, a = %.4g \u00b1 %.4g" % (*roundwitherror(k, kerr), *roundwitherror(a, aerr)))
+        plt.plot(X, expf(X, k ,a), color=color, lw=0.7, label="f=a*(1-k**(-x)), k=%.4g \u00b1 %.4g, a=%.4g \u00b1 %.4g" % (*roundwitherror(k, kerr), *roundwitherror(a, aerr)))
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
     plt.title(title)
@@ -349,7 +435,11 @@ def expPlot(dat, xName, yName, xLabel, yLabel, color = "b", label = None, title 
 
 
 
-def pre(x, xerr): #pretty error rounding
+def pre(x, xerr):
+    """
+    pretty error rounding
+    returns properly formatted string to be used as a label in pyplot figure
+    """
     print(x)
     print(xerr)
     h = getdecimals(xerr)
@@ -376,29 +466,3 @@ def paste2clip(x, err):
         i += 1
     ppc.copy(paste)
     return "pasted"
-        
-    
-
-
-"""
-example for the use of the function listErrorCalc:
-
-the first input value will be of type dict and will have the structure
-data[variable_name][[x1, x1, and so on...], [xerr1, xerr2, and so on...]]
-so a list consisting of two lists which will contain a value and its error at similar indices.
-for constants, brackets may be omitted as the function will map shorter lists with less entries to longer lists with more entries by 
-iterating  on the entries in those list more slowly. 
-
-the second input valie will be of type string and should contain the formula to be applied to the data in a shape recognizable by python.
-trigonometric and other common mathematical functions need not be specifically named of imported since they're already imported by default
-withing this module. 
-
-the function returns a list of two lists which are the calculated values and their errors and similar indeces. 
-so an example of using the function in practice may look like this:
-data = {"var1":[[x1, x2, and so on... ], [xerr1, xerr2, and so on... ]], "var2":((y1, y2, and so on... ), (yerr1, yerr2, and so on...))}
-formula = "var1/var2"
-data["newvar"] = listErrorCalc(data, formula)
-"""
-
-
-
