@@ -2,9 +2,6 @@
 super duper error calculation
 """
 
-
-
-
 import pprint
 import time as t
 
@@ -15,12 +12,8 @@ import math as m
 import numpy as np
 from scipy.optimize import curve_fit
 
-
-import sys
-sys.path.append("/home/ole/Desktop/Projekt_1")
-from fehlerrechnung_funktionen import (roundwitherror, listErrorCalc, listifyString, killchars,
+from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars,
     paste2clip, fitAndPlot)
-
 
 #https://www.youtube.com/watch?v=yMR45cZbvDw # youtube sentdex
 class SampleApp(tk.Tk):
@@ -167,7 +160,7 @@ class PageOne(tk.Frame):
             for key in self.data.keys():
                 a.append(key in F and key != "")
             if all(a) == True:
-                X=listErrorCalc(self.data, F, roundput=self.roundput.get())
+                X=list_error_calc(self.data, F, roundput=self.roundput.get())
                 if self.v.get() == 1:
                     result=killchars(str(X[0]).strip("[]").replace(
                         ",", "\n").replace(",", self.Delimiter.get()), " "
@@ -256,8 +249,12 @@ class PageOne(tk.Frame):
 ###################################################################################################################
 
 if __name__ == "__main__":
-    app=SampleApp()
-    app.title("OTFR")
-    app.mainloop()
-    app.destroy()
+    try:
+        app=SampleApp()
+        app.title("OTFR")
+        app.mainloop()
+        app.destroy()
+    except tk.TclError as tkerr:
+        print("exited from TclError: {}".format(tkerr))
+
 
