@@ -115,32 +115,26 @@ def getdecimals(x):
     1 i.e. 10, 100, 1000
     will be returned as a negative number of decimal accuracy
     """
-    x_data = str(x).strip("[]")
-    if "e" in x_data:
-        a, b = x_data.split("e")
-        return -int(b)
-    elif "." in x_data:
-        a, b = x_data.split(".")
-        if float(a) != 0:
-            return 1-len(a)
-        if float(a) == 0:
-            i = 0
-            while float(b[i]) == 0:
-                i += 1
-            return i + 1
-    elif x_data.isnumeric():
-        return -len(x_data)
+    i = 0
+    while not (x >= 1 and x < 10):
+        if x >= 10:
+            i -= 1
+            x /= 10
+        if x < 1:
+            i += 1
+            x *= 10
+    return i
 
 def roundwitherror(x, err):
     """
     rounds a number with a given error to the precision of that error, after it has rounded
     the error up
     """
-    if type(x) == list and len(x) == 1:
+    if isinstance(x, list) and len(x) == 1:
         x = x[0]
-    if type(err) == list and len(err) == 1:
+    if isinstance(err, list) and len(err) == 1:
         err = err[0]
-    if (type(err) != int) and (type(err) != float) and (type(err) != np.int64) and (type(err) != np.float64):
+    if not isinstance(err, (int, float, np.int64, np.float64)):
         return x, err
     elif err == 0:
         return x, 0
