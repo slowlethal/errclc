@@ -27,18 +27,17 @@ data={"var1":[[x1, x2, and so on... ], [xerr1, xerr2, and so on... ]],
 formula="var1/var2"
 data["newvar"]=list_error_calc(data, formula)
 """
+import matplotlib.pyplot as plt
 import math as m
 from math import sin, cos, tan, asin, acos, atan, exp, e, pi, log
 import numpy as np
 from scipy.optimize import curve_fit
-import pyperclip as ppc
 
 """
 font={'family' : 'normal', 'weight' : 'normal','size':12}
 
 font = {'weight':'normal', 'size':12}
 """
-import matplotlib.pyplot as plt
 
 def f(x, m, b):
     return m*x+b
@@ -106,7 +105,7 @@ def round_up(n, decimals=0):
     rounds a number up to a given degree of decimals
     """
     multiplier = 10 ** decimals
-    return m.ceil(n * multiplier) / multiplier 
+    return m.ceil(n * multiplier) / multiplier
     #das ist alles nur geklaut-von den prinzen(aus dem internetz)
 
 def getdecimals(x):
@@ -309,7 +308,9 @@ def list_error_calc(data, function, roundput=False):
             print("Type error in list conversion")
     j = max(lens)
     for key in keys:
-    #this makes it so that lists of different lenghts are stretched to accomodate eachother. constants are now possible by just typing them and leaving them as is
+        """this makes it so that lists of different lenghts are stretched to accomodate eachother.
+        constants are now possible by just typing them and leaving them as is
+        """
         indexdict[key][0] = [indexdict[key][0]/j, 0]
         #fick dich python du schlange dafür dass du tuple mit len(t)=1 zu int umfickst
         indexdict[key][1] = [indexdict[key][1]/j, 0]
@@ -385,8 +386,9 @@ def plot_linear(dat, x_name, y_name, x_label, y_label, color="b", label=None, ti
     if fit:
         plt.plot(
             x_data, linf(x_data, m, b), color=color, lw=0.7,
-            label="f=mx+b, m=%.4g \u00b1 %.4g, b=%.4g \u00b1 %.4g" % (*roundwitherror(m, merr),
-                *roundwitherror(b, berr)))
+            label="f=mx+b, m=%.4g \u00b1 %.4g, b=%.4g \u00b1 %.4g" %
+            (*roundwitherror(m, merr), *roundwitherror(b, berr))
+            )
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
@@ -399,9 +401,7 @@ def expf(x, k, a):
     """
     return a*(1-k**(-x))
 
-def plot_exponential(
-    dat, x_name, y_name, x_label, y_label, color="b", label=None, title=None, fit=True
-    ):
+def plot_exponential(dat, x_name, y_name, x_label, y_label, color="b", label=None, title=None, fit=True):
     """
     creates a nice figure
     """
@@ -414,7 +414,11 @@ def plot_exponential(
     x_data = np.arange(min(x), max(x), (max(x) - min(x))/100)
     k, kerr, a, aerr = popt[0], perr[0], popt[1], perr[1]
     if fit:
-        plt.plot(x_data, expf(x_data, k, a), color=color, lw=0.7, label="f=a*(1-k**(-x)), k=%.4g \u00b1 %.4g, a=%.4g \u00b1 %.4g" % (*roundwitherror(k, kerr), *roundwitherror(a, aerr)))
+        plt.plot(
+            x_data, expf(x_data, k, a), color=color, lw=0.7,
+            label="f=a*(1-k**(-x)), k=%.4g \u00b1 %.4g, a=%.4g \u00b1 %.4g" %
+            (*roundwitherror(k, kerr), *roundwitherror(a, aerr))
+            )
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
@@ -435,15 +439,3 @@ def pre(x, xerr):
     if g < h:
         x = str(x)+("0"*(h-g))
     return "%s(%s)" % (x, s)
-
-def paste2clip(x, err):
-    i = 0
-    paste = ""
-    while i < len(x):
-        if i == len(x) - 1:
-            paste += str(x[i])+"\t"+str(err[i])
-        else:
-            paste += str(x[i])+"\t"+str(err[i])+"\n"
-        i += 1
-    ppc.copy(paste)
-    return "pasted"

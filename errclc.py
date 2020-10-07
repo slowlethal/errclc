@@ -11,9 +11,10 @@ import matplotlib.pyplot as plt
 import math as m
 import numpy as np
 from scipy.optimize import curve_fit
+import xerox
+from plotting import tkinter_plot
 
-from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars,
-                                       paste2clip, fitAndPlot)
+from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot)
 
 #https://www.youtube.com/watch?v=yMR45cZbvDw # youtube sentdex
 class SampleApp(tk.Tk):
@@ -63,7 +64,7 @@ class PlotPage(tk.Frame):
         tk.Button(
             self, text="Back",
             command=lambda: controller.show_frame("PageOne")
-            ).grid(row=0, column=0)
+            ).place(x=20, y=30, width=125, height=20)
         self.plotbutton = tk.Button(
             self, text="Plot",
             command=lambda: fitAndPlot(
@@ -71,15 +72,31 @@ class PlotPage(tk.Frame):
                 PageOne.data[self.y_data.get()]
                 )
             )
-        self.plotbutton.grid(row=5, column=0)
-        tk.Entry(self, textvariable=self.x_name).grid(row=1, column=1)
-        tk.Entry(self, textvariable=self.y_name).grid(row=2, column=1)
-        tk.Entry(self, textvariable=self.x_data).grid(row=3, column=1)
-        tk.Entry(self, textvariable=self.y_data).grid(row=4, column=1)
-        tk.Label(self, text="x Name").grid(row=1, column=0)
-        tk.Label(self, text="y Name").grid(row=2, column=0)
-        tk.Label(self, text="x Data").grid(row=3, column=0)
-        tk.Label(self, text="x Data").grid(row=4, column=0)
+        tk.Button(
+            self, text="more plot", command=lambda: tkinter_plot(
+                self, *PageOne.data[self.x_data.get()], *PageOne.data[self.y_data.get()],
+                self.x_name.get(), self.y_name.get()
+                )
+            ).place(x=20, y=50, width=125, height=20)
+        self.plotbutton.place(x=20, y=70, width=125, height=20)
+        tk.Entry(self, textvariable=self.x_name).place(x=125, y=90, width=125, height=20)
+        tk.Entry(self, textvariable=self.y_name).place(x=125, y=110, width=125, height=20)
+        tk.Entry(self, textvariable=self.x_data).place(x=125, y=130, width=125, height=20)
+        tk.Entry(self, textvariable=self.y_data).place(x=125, y=150, width=125, height=20)
+        tk.Label(self, text="x Name").place(x=0, y=90, width=125, height=20)
+        tk.Label(self, text="y Name").place(x=0, y=110, width=125, height=20)
+        tk.Label(self, text="x Data").place(x=0, y=130, width=125, height=20)
+        tk.Label(self, text="x Data").place(x=0, y=150, width=125, height=20)
+
+
+        self.variable = tk.StringVar()
+        """
+        self.opt = tk.OptionMenu(self, self.variable, *PageOne.data.keys())
+        self.opt.config(width=90, font=('Helvetica', 12))
+        self.opt.place(x=20, y=170, width=125, height=20)
+        """
+
+
     def makePlot(self):
         """
         dcostring
@@ -102,6 +119,7 @@ class StartPage(tk.Frame):
         quitbutton = tk.Button(self, text="Ende", command=self.quit)
         button1.pack()
         quitbutton.pack()
+
 class PageOne(tk.Frame):
     """
     docstring
@@ -123,13 +141,9 @@ class PageOne(tk.Frame):
             command=lambda: self.FR()
             )
         d.grid(row=1, column=5)
-        """
-        clipbutton=tk.Button(self, text="Copy", command=lambda:self.copy2clip())
-        clipbutton.grid(row=2, column=5)
-        """
+
         self.result_var = tk.StringVar()
         self.error_var = tk.StringVar()
-        self.clip_var = tk.StringVar()
         self.formula_var = tk.StringVar()
         tk.Label(self, text="Formel").grid(row=0, column=2)
         tk.Label(self, text="Folgewert").grid(row=0, column=3)
@@ -144,15 +158,13 @@ class PageOne(tk.Frame):
         self.result_entry.grid(row=1, column=3)
         self.result_error_entry = tk.Entry(self, textvariable=self.error_var)
         self.result_error_entry.grid(row=1, column=4)
-        self.clip_entry = tk.Entry(self, textvariable=self.clip_var)
-        self.clip_entry.grid(row=2, column=5)
         self.plot_button = tk.Button(
             self, text="Plotten (WIP)", command=lambda: controller.show_frame("PlotPage")
             )
         self.plot_button.grid(row=2, column=1)
         self.calc_button = tk.Button(self, text="Folgefehler berechnen", command=lambda: self.FR())
         self.calc_button.grid(row=3, column=1)
-        self.label1 = tk.Label(self, text="Präsentiert von Camel Zigaretten")
+        tk.Label(self, text="Präsentiert von Camel Zigaretten").grid(row=0, column=1)
         self.addbutton = tk.Button(self, text="neue Zeile", command=lambda: self.Widgets("add"))
         self.removebutton = tk.Button(
             self, text="Zeile entfernen", command=lambda: self.Widgets("remove")
@@ -161,7 +173,6 @@ class PageOne(tk.Frame):
         self.label3 = tk.Label(self, text="Wert")
         self.label4 = tk.Label(self, text="Fehler")
         self.label7 = tk.Label(self, text="Bezeichnung")
-        self.label1.grid(row=0, column=1)
         self.addbutton.grid(row=3, column=5)
         self.testbutton.grid(row=4, column=1)
         self.label3.grid(row=2, column=2)
@@ -205,8 +216,8 @@ class PageOne(tk.Frame):
                     else:
                         paste += str(x[i])+"\t"+str(err[i])+"\n"
                     i += 1
-                self.clip_var.set(paste)
-                print("pasted")
+                xerox.copy(paste)
+                print("pasted to clipboard")
             else:
                 print("Referenced nonexistent variables in function. Check variable names!")
 
