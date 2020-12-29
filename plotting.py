@@ -9,12 +9,20 @@ from matplotlib.figure import Figure
 import numpy as np
 
 def tkinter_plot(master, x, xerr, y, yerr, x_name, y_name):
-    print(x, xerr, y, yerr, x_name, y_name)
     fig = Figure(figsize=(5, 4), dpi=100)
-    fig.add_subplot(111).errorbar(x=x, y=y, xerr=xerr, yerr=yerr)
+    #fig, ax = plt.subplots(1, 1)
+    #fig.add_subplot(111).errorbar(x=x, y=y, xerr=xerr, yerr=yerr, capsize=2, elinewidth=1, lw=0)
+    ax = fig.add_subplot(111)
+    ax.errorbar(x=x, y=y, xerr=xerr, yerr=yerr, capsize=2, elinewidth=1, lw=0)
+    ax.set_xlabel(r"%s"%x_name)
+    ax.set_ylabel(r"%s"%y_name)
     canvas = FigureCanvasTkAgg(fig, master=master)
     canvas.draw()
-    canvas.get_tk_widget().place(x=250, y=20, width=500, height=500)
+    canvas.get_tk_widget().grid(column=3, row=0, columnspan=40, rowspan=40, padx=20, pady=20)
+    return fig
+
+def savefig(fig):
+    fig.savefig("fig_1")
 
 
 

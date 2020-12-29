@@ -12,11 +12,17 @@ import math as m
 import numpy as np
 from scipy.optimize import curve_fit
 import xerox
-from plotting import tkinter_plot
+from plotting import tkinter_plot, savefig
 
 from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot)
 
 #https://www.youtube.com/watch?v=yMR45cZbvDw # youtube sentdex
+
+
+
+
+
+
 class SampleApp(tk.Tk):
     """
     window program
@@ -54,7 +60,6 @@ class PlotPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-
         self.x_name = tk.StringVar()
         self.y_name = tk.StringVar()
         self.x_data = tk.StringVar()
@@ -64,7 +69,7 @@ class PlotPage(tk.Frame):
         tk.Button(
             self, text="Back",
             command=lambda: controller.show_frame("PageOne")
-            ).place(x=20, y=30, width=125, height=20)
+            ).grid(column=0, row=0, sticky="W")
         self.plotbutton = tk.Button(
             self, text="Plot",
             command=lambda: fitAndPlot(
@@ -72,36 +77,53 @@ class PlotPage(tk.Frame):
                 PageOne.data[self.y_data.get()]
                 )
             )
+        PageOne.data = {"a":((1,2,3,4), (1,1,1,1)), "b":((2,4,5,6), (1,1,1,1))}
         tk.Button(
-            self, text="more plot", command=lambda: tkinter_plot(
-                self, *PageOne.data[self.x_data.get()], *PageOne.data[self.y_data.get()],
-                self.x_name.get(), self.y_name.get()
-                )
-            ).place(x=20, y=50, width=125, height=20)
-        self.plotbutton.place(x=20, y=70, width=125, height=20)
-        tk.Entry(self, textvariable=self.x_name).place(x=125, y=90, width=125, height=20)
-        tk.Entry(self, textvariable=self.y_name).place(x=125, y=110, width=125, height=20)
-        tk.Entry(self, textvariable=self.x_data).place(x=125, y=130, width=125, height=20)
-        tk.Entry(self, textvariable=self.y_data).place(x=125, y=150, width=125, height=20)
-        tk.Label(self, text="x Name").place(x=0, y=90, width=125, height=20)
-        tk.Label(self, text="y Name").place(x=0, y=110, width=125, height=20)
-        tk.Label(self, text="x Data").place(x=0, y=130, width=125, height=20)
-        tk.Label(self, text="x Data").place(x=0, y=150, width=125, height=20)
-
+            self, text="more plot", command=lambda: self.makePlot() 
+            ).grid(column=0, row=1, sticky="W")
+        self.plotbutton.grid(column=0, row=2, sticky="W")
+        tk.Entry(self, textvariable=self.x_name).grid(column=1, row=3)
+        tk.Entry(self, textvariable=self.y_name).grid(column=1, row=4)
+        tk.Entry(self, textvariable=self.x_data).grid(column=1, row=5)
+        tk.Entry(self, textvariable=self.y_data).grid(column=1, row=6)
+        tk.Label(self, text="x Name").grid(column=0, row=3, sticky="W")
+        tk.Label(self, text="y Name").grid(column=0, row=4, sticky="W")
+        tk.Label(self, text="x Data").grid(column=0, row=5, sticky="W")
+        tk.Label(self, text="x Data").grid(column=0, row=6, sticky="W")
+        tk.Button(self, text="save", command=lambda: savefig(self.fig)).grid(column=0, row=7)
+        self.option_menu_y = tk.OptionMenu(self, self.x_data, *PageOne.data.keys())
+        self.option_menu_y.grid(column=0, row=8)
 
         self.variable = tk.StringVar()
+        PlotPage.menu_y = self.option_menu_y["menu"]
+        PlotPage.menu_y.add("command", label="test", command=lambda value="test": self.x_data.set("test"))
+        """
+        while True:
+            self.option_menu_y.grid_forget()
+            self.option_menu_y = tk.OptionMenu(self, self.x_data, PageOne.data.keys())
+            self.option_menu_y.grid(column=0, row=8)
+            t.sleep(5)
+        """
         """
         self.opt = tk.OptionMenu(self, self.variable, *PageOne.data.keys())
         self.opt.config(width=90, font=('Helvetica', 12))
         self.opt.place(x=20, y=170, width=125, height=20)
         """
 
+    def update_option_menu(self, menu, labels):
+        menu.delete(0, "end")
+        print("test")
+        for label in labels:
+            menu.add("command", label=label, command=lambda value=label: self.x_data.set(label))
 
     def makePlot(self):
         """
         dcostring
         """
-        pass
+        self.fig = tkinter_plot(
+                self, *PageOne.data[self.x_data.get()], *PageOne.data[self.y_data.get()],
+                self.x_name.get(), self.y_name.get()
+                )
 
 class StartPage(tk.Frame):
     """
@@ -128,7 +150,6 @@ class PageOne(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.names = ("entryMass", "entry_pos_x", "entry_pos_y", "entryVelx", "entryVely")
         self.row_number = 2
         self.v = tk.IntVar()
         c = tk.Checkbutton(self, text="Excel", variable=self.v, command=lambda: self.FR())
@@ -220,11 +241,13 @@ class PageOne(tk.Frame):
                 print("pasted to clipboard")
             else:
                 print("Referenced nonexistent variables in function. Check variable names!")
+        PlotPage.update_option_menu(PlotPage, PlotPage.menu_y, self.data.keys())
 
     def Widgets(self, state):
         """
         docstring
         """
+
         if state == "add":
             self.row_number = self.row_number + 1
             if self.row_number > 3:
@@ -252,6 +275,7 @@ class PageOne(tk.Frame):
             if self.row_number > 4:
                 self.removebutton.grid(row=self.row_number - 1, column=6)
             self.row_number = self.row_number - 1
+
     def getList(self, delimiter=","):
         """
         docstring
@@ -289,7 +313,6 @@ class PageOne(tk.Frame):
         #print(PageOne.data)
 
 #################################################################################################
-
 if __name__ == "__main__":
     try:
         app = SampleApp()

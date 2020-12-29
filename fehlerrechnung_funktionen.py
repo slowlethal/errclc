@@ -32,6 +32,7 @@ import math as m
 from math import sin, cos, tan, asin, acos, atan, exp, e, pi, log
 import numpy as np
 from scipy.optimize import curve_fit
+from sympy import *
 
 """
 font={'family' : 'normal', 'weight' : 'normal','size':12}
@@ -250,6 +251,32 @@ def new_error_calc(function, values):
     for key in keys:
         error += abs(get_slope(function, args, str(key)+"="+str(values[key][0]))*values[key][1])
     return trueval, error
+
+def new_new_error_calc(function, values, latex=False):
+    function = parse_expr(function)
+    args = function.args
+    dargs = []
+    for arg in args:
+        exec("%s=symbols('%s')" % (str(arg), str(arg)))
+        exec("Delta_%s=symbols('Delta_%s')" % (str(arg), str(arg)))
+        dargs.append("Delta_%s" % arg)
+    D = 0
+    for arg in args:
+        D += diff(function, arg)*dargs[args.index(arg)]
+    for arg in args:
+        D = D.subs(arg, values[str(arg)][0]).subs(dargs[args.index(arg)], values[str(arg)][1])
+    error = function
+    for arg in args:
+        function = function.subs(arg, values[str(arg)][0])
+    value = function
+    return value, error
+
+
+
+
+
+
+
 
 """#legacy version of this function without input listification and generally worse overall.
 def list_error_calc(data, function):
