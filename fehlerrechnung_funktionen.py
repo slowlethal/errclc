@@ -40,6 +40,32 @@ font={'family' : 'normal', 'weight' : 'normal','size':12}
 font = {'weight':'normal', 'size':12}
 """
 
+def NIST_replace(t):
+    read = open("allascii.txt", "r")
+    consts_raw = read.read()
+    read.close()
+    c = consts_raw.split("\n")
+    NIST = {}
+    for N in c[12:365]:
+        NIST[str(N[0:60].strip())] = [float(N[60:85].strip().replace(" ", "").replace("...", "")),
+        float(N[60:85].strip().replace(" ", "").replace("(exact)", "0").replace("...", "")),
+        str(N[110:].strip().replace(" ", ""))]
+    important_keys = []
+    i = int(t.count("#")/2)
+    l = str(" "+t).split("#")
+    j = 0
+    while j < i :
+        s1 = str("#"+l[2*j+1]+"#")
+        t = t.replace(s1, str(NIST[l[2*j+1]][0]))
+        j += 1
+    return t
+
+
+
+
+
+
+
 def f(x, m, b):
     return m*x+b
 

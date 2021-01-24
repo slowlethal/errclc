@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit
 import xerox
 from plotting import tkinter_plot, savefig
 
-from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot)
+from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot, NIST_replace)
 
 #https://www.youtube.com/watch?v=yMR45cZbvDw # youtube sentdex
 
@@ -210,6 +210,7 @@ class PageOne(tk.Frame):
         docstring
         """
         F = self.formula_var.get()
+        F = NIST_replace(F)
         if len(F):
             a = []
             for key in self.data.keys():
@@ -292,7 +293,12 @@ class PageOne(tk.Frame):
                 for slave in slaves:
                     if slave.grid_info()["row"] == i and slave.grid_info()["column"] == k:
                         if k <= 3:
-                            l.append(listifyString(slave.get().strip(delimiter), delimiter))
+                            """
+                            replace designated physical constants with NIST values
+                            """
+                            t = slave.get()
+                            t = NIST_replace(t)
+                            l.append(listifyString(t.strip(delimiter), delimiter))
                         if k == 4:
                             name = str(slave.get())
                 k += 1
