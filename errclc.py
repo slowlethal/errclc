@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import math as m
 import numpy as np
 from scipy.optimize import curve_fit
-import xerox
+#import xerox
 from plotting import tkinter_plot, savefig
 
 from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot, NIST_replace)
@@ -112,7 +112,7 @@ class PlotPage(tk.Frame):
 
     def update_option_menu(self, menu, labels):
         menu.delete(0, "end")
-        print("test")
+        #print("test")
         for label in labels:
             menu.add("command", label=label, command=lambda value=label: self.x_data.set(label))
 
@@ -238,8 +238,8 @@ class PageOne(tk.Frame):
                     else:
                         paste += str(x[i])+"\t"+str(err[i])+"\n"
                     i += 1
-                xerox.copy(paste)
-                print("pasted to clipboard")
+                #xerox.copy(paste)
+                #print("pasted to clipboard")
             else:
                 print("Referenced nonexistent variables in function. Check variable names!")
         PlotPage.update_option_menu(PlotPage, PlotPage.menu_y, self.data.keys())

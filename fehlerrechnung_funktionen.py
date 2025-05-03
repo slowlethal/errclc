@@ -194,20 +194,22 @@ def get_slope(function, allargs, xarg, tolerance=0.000001):
     args = allargs
     dx = 1
     slope_last = (
-        (calc_custom_func(function, str(args)+","+str(xarg)+"+"+str(dx)))-
-        (calc_custom_func(function, str(args)+","+str(xarg)+"-"+str(dx)))
+        (calc_custom_func(function, "%s,%s+%s)"%(args, xarg, dx)))-
+        (calc_custom_func(function, "%s,%s-%s)"%(args, xarg, dx)))
         )/(2*dx)
-    dx *= 0.1
+    dx *= 0.5
     slope_new = (
-        (calc_custom_func(function, str(args)+","+str(xarg)+"+"+str(dx)))-
-        (calc_custom_func(function, str(args)+","+str(xarg)+"-"+str(dx)))
+        (calc_custom_func(function, "%s,%s+%s)"%(args, xarg, dx)))-
+        (calc_custom_func(function, "%s,%s-%s)"%(args, xarg, dx)))
         )/(2*dx)
+    #print(slope_new-slope_last)
     while abs(slope_new-slope_last) > tolerance:
+        #print(slope_new-slope_last)
         slope_last = slope_new
         dx *= 0.5
         slope_new = (
-            (calc_custom_func(function, str(args)+","+str(xarg)+"+"+str(dx)))-
-            (calc_custom_func(function, str(args)+","+str(xarg)+"-"+str(dx)))
+            (calc_custom_func(function, "%s,%s+%s)"%(args, xarg, dx)))-
+            (calc_custom_func(function, "%s,%s-%s)"%(args, xarg, dx)))
             )/(2*dx)
     return slope_new
 
@@ -232,8 +234,22 @@ def calc_custom_func(function, args):
     """
     executes a function which is given as a string, which has args as variables
     """
+    #print("args: %s"%args)
+    #print("function: %s"%function)
+    #print(args.split(","))
+    #print(args)
+    xarg = args.split(",")[-1].split("=")
+    
+    function = function.replace(xarg[0], xarg[1])
+    #print(xarg.split())
+    #function = function.replace(xarg)
     for arg in args.split(","):
-        exec(arg)
+        #print(arg)
+        #print(arg.split("="))
+        ags = arg.split("=")
+        function = function.replace(ags[0], ags[1])
+        #print("test")
+        #print("function %s"%function)
     return eval(function)
 
 def error_calc(function, values):
@@ -255,7 +271,7 @@ def error_calc(function, values):
     for val in vals:
         arg = str(val)+"="+str(values[val])+","
         allargs += arg
-
+    allargs = allargs[:-1]
     for val in vals:
         xarg = str(val)+"="+str(values[val])
         xerrkey = "delta_"+str(val)
@@ -273,9 +289,10 @@ def new_error_calc(function, values):
     args = ""
     for key in keys:
         args += str(key)+"="+str(values[key][0])+","
+    args=args[:-1]
     trueval = calc_custom_func(function, args)
     for key in keys:
-        error += abs(get_slope(function, args, str(key)+"="+str(values[key][0]))*values[key][1])
+        error += abs(get_slope(function, args, str(key)+"=("+str(values[key][0]))*values[key][1])
     return trueval, error
 
 def new_new_error_calc(function, values, latex=False):
