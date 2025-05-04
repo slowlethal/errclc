@@ -135,10 +135,10 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text="MOIN", font=("helvetica", 30))
         label.pack(side="top", fill="x", pady=100, padx=100)
         button1 = tk.Button(
-            self, text="Fehlerrechner",
+            self, text="Uncertainty Calculator",
             command=lambda: controller.show_frame("PageOne")
             )
-        quitbutton = tk.Button(self, text="Ende", command=self.quit)
+        quitbutton = tk.Button(self, text="quit", command=self.quit)
         button1.pack()
         quitbutton.pack()
 
@@ -166,11 +166,11 @@ class PageOne(tk.Frame):
         self.result_var = tk.StringVar()
         self.error_var = tk.StringVar()
         self.formula_var = tk.StringVar()
-        tk.Label(self, text="Formel").grid(row=0, column=2)
-        tk.Label(self, text="Folgewert").grid(row=0, column=3)
-        tk.Label(self, text="Folgefehler").grid(row=0, column=4)
+        tk.Label(self, text="Equation").grid(row=0, column=2)
+        tk.Label(self, text="Result Value").grid(row=0, column=3)
+        tk.Label(self, text="Result Uncertainty").grid(row=0, column=4)
         self.backbutton = tk.Button(
-            self, text="zurück", command=lambda: controller.show_frame("StartPage")
+            self, text="back", command=lambda: controller.show_frame("StartPage")
             )
         self.backbutton.grid(row=1, column=1)
         self.formulaEntry = tk.Entry(self, textvariable=self.formula_var)
@@ -182,18 +182,18 @@ class PageOne(tk.Frame):
         self.plot_button = tk.Button(
             self, text="Plotten (WIP)", command=lambda: controller.show_frame("PlotPage")
             )
-        self.plot_button.grid(row=2, column=1)
-        self.calc_button = tk.Button(self, text="Folgefehler berechnen", command=lambda: self.FR())
+        #self.plot_button.grid(row=2, column=1)
+        self.calc_button = tk.Button(self, text="Calculate Result with Uncertainty", command=lambda: self.FR())
         self.calc_button.grid(row=3, column=1)
         tk.Label(self, text="Präsentiert von Camel Zigaretten").grid(row=0, column=1)
-        self.addbutton = tk.Button(self, text="neue Zeile", command=lambda: self.Widgets("add"))
+        self.addbutton = tk.Button(self, text="New Row", command=lambda: self.Widgets("add"))
         self.removebutton = tk.Button(
-            self, text="Zeile entfernen", command=lambda: self.Widgets("remove")
+            self, text="Remove Row", command=lambda: self.Widgets("remove")
             )
-        self.testbutton = tk.Button(self, text="Werte übernehmen", command=lambda: self.getList())
-        self.label3 = tk.Label(self, text="Wert")
-        self.label4 = tk.Label(self, text="Fehler")
-        self.label7 = tk.Label(self, text="Bezeichnung")
+        self.testbutton = tk.Button(self, text="Confirm", command=lambda: self.getList())
+        self.label3 = tk.Label(self, text="Measured Value")
+        self.label4 = tk.Label(self, text="Uncertainty")
+        self.label7 = tk.Label(self, text="Name")
         self.addbutton.grid(row=3, column=5)
         self.testbutton.grid(row=4, column=1)
         self.label3.grid(row=2, column=2)
@@ -202,8 +202,10 @@ class PageOne(tk.Frame):
         self.Widgets("add")
         self.delimiter = tk.StringVar()
         self.delimiter.set(",")
+        self.cd_label = tk.Label(self, text="Delimiter")
+        self.cd_label.grid(row=0, column=6)
         self.custom_delimiter = tk.Entry(self, textvariable=self.delimiter)
-        self.custom_delimiter.grid(row=0, column=6)
+        self.custom_delimiter.grid(row=1, column=6)
 
     def FR(self):
         """
@@ -225,8 +227,8 @@ class PageOne(tk.Frame):
                         ",", "\n").replace(",", self.delimiter.get()), " "
                                      )
                 else:
-                    result = str(X[0]).strip("[]")
-                    error = str(X[1]).strip("[]")
+                    result = str(X[0]).strip("[]").replace("np.float64", "").replace("(", "").replace(")", "")
+                    error = str(X[1]).strip("[]").replace("np.float64", "").replace("(", "").replace(")", "")
                 self.result_var.set(result)
                 self.error_var.set(error)
                 i = 0

@@ -178,7 +178,7 @@ def roundwitherror(x, err):
 
 def pop_arg(args, xarg): #this might be useless at this point
     """
-    deprecated legacy module from old version of the program
+    deprecated legacy module from old version
     """
     for arg in args.split(","):
         if xarg in arg:
