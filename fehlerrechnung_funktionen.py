@@ -33,13 +33,13 @@ from math import sin, cos, tan, asin, acos, atan, exp, e, pi, log
 import numpy as np
 from scipy.optimize import curve_fit
 from sympy import *
-
+import json
 """
 font={'family' : 'normal', 'weight' : 'normal','size':12}
 
 font = {'weight':'normal', 'size':12}
 """
-
+"""
 def NIST_replace(t):
     read = open("allascii.txt", "r")
     consts_raw = read.read()
@@ -59,8 +59,50 @@ def NIST_replace(t):
         t = t.replace(s1, str(NIST[l[2*j+1]][0]))
         j += 1
     return t
+"""
 
+def load_json(filepath):
+    with open(filepath) as f:
+        const_json = f.read()
+        f.close()
+    constants = json.loads(const_json)
+    return constants
 
+def NIST_replace(t):
+    constants = load_json("./constants.json")
+    #print(constants["!c"])
+    for key in constants.keys():
+        t = t.replace("!%s"%key, constants[key])
+    return t
+
+def add_consts_to_data(data,function):
+    constants = load_json("./constants.json")
+    #print(constants["!c"])
+    for key in constants.keys():
+        #print(key)
+        if "!%s"%key in function:
+            C = constants[key]
+            print("NIST-constant %s detected! substituting value..."%key)
+            if C[1] == "0":
+                function = function.replace("!%s"%key, C[0])
+            else:
+                data["!%s"%key] = [float(C[0]), float(C[1])]
+    return data, function
+
+def eat_string(mainstring, substrings):
+    constants = load_json("./constants.json")
+
+    for s in substrings:
+        mainstring = mainstring.replace(s, "")
+    for operator in ("*", "+", "-", "/"):
+        mainstring = mainstring.replace(operator, "")
+    for const in constants.keys():
+        mainstring = mainstring.replace("!%s"%const, "")
+    print(mainstring)
+    if mainstring == "":
+        return True
+    else:
+        return False
 
 
 
@@ -296,6 +338,12 @@ def new_error_calc(function, values):
     return trueval, error
 
 def new_new_error_calc(function, values, latex=False):
+    """
+    i have no earthly idea what the fuck i was trying to do here. i think it was about changing the way the expression is evaluated
+    to use sympy instead of the botched, garbled string eval shit i'm doing right now but i never bothered to actually get it working
+    i think. anyways i fixed the string bullshit so this is the way we're going here. all i wanna do is not have to do partial
+    derivatives anymore. i just want to be happy.
+    """
     function = parse_expr(function)
     args = function.args
     dargs = []
@@ -350,7 +398,10 @@ def list_error_calc(data, function, roundput=False):
     ain't NASA so i can do whatever the fuck i want motherfucker
     ^^ i'll never get anywhere with that mindset LOL
     """
+    #print(data)
+    data, function = add_consts_to_data(data, function)
     data = listifyData(data)
+    
     result = [[], []]
     keys = data.keys()
     lens = []
@@ -393,6 +444,7 @@ def list_error_calc(data, function, roundput=False):
                 data[key][0][int(indexdict[key][0][1])],
                 data[key][1][int(indexdict[key][1][1])]
             ] #tut er schon
+            #print(d)
         if roundput == 0:
             x, xerr = new_error_calc(function, d)
         if roundput == 1:

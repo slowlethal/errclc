@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit
 #import xerox
 from plotting import tkinter_plot, savefig
 
-from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot, NIST_replace)
+from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot, NIST_replace, eat_string)
 
 #https://www.youtube.com/watch?v=yMR45cZbvDw # youtube sentdex
 
@@ -212,12 +212,13 @@ class PageOne(tk.Frame):
         docstring
         """
         F = self.formula_var.get()
-        F = NIST_replace(F)
+        #F = NIST_replace(F)
         if len(F):
             a = []
             for key in self.data.keys():
                 a.append(key in F and key != "")
             if all(a):
+                #if eat_string(F, self.data.keys()):
                 X = list_error_calc(self.data, F, roundput=self.roundput.get())
                 if self.v.get() == 1:
                     result = killchars(str(X[0]).strip("[]").replace(
@@ -299,7 +300,7 @@ class PageOne(tk.Frame):
                             replace designated physical constants with NIST values
                             """
                             t = slave.get()
-                            t = NIST_replace(t)
+                            #t = NIST_replace(t)
                             l.append(listifyString(t.strip(delimiter), delimiter))
                         if k == 4:
                             name = str(slave.get())
