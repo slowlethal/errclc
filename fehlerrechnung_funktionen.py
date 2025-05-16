@@ -127,6 +127,23 @@ def roundwitherror(x, err):
             rx = round(x, getdecimals(rerr))
         return rx, rerr
 
+def listifyString(s, delimiter, ignorePercent=True):
+    """
+    takes a string which is assumed to have multiple semi-numerical elements within it
+    and separates them according to the given delimiter
+    """
+    if len(s) == 0:
+        return [0]
+    else:
+        s = killchars(s, ("[", "]", "(", ")"))
+        L = []
+        for i in s.split(delimiter):
+            if "%" in i:
+                L.append(str(i))
+            else:
+                L.append(float(i))
+        return L
+
 def get_slope(function, allargs, xarg, tolerance=0.000001):
     """
     die partielle ableitung von function mit den argumenten args nach xarg an der stelle xarg
