@@ -1,31 +1,17 @@
 """
-super duper error calculation
+super duper uncertainty calculation
 """
-
-import pprint
 import time as t
-
-
 import tkinter as tk
-import matplotlib.pyplot as plt
-import math as m
 import numpy as np
-from scipy.optimize import curve_fit
-#import xerox
-from plotting import tkinter_plot, savefig
 
-from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot, NIST_replace, eat_string)
+from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, fitAndPlot, NIST_replace)
 
-#https://www.youtube.com/watch?v=yMR45cZbvDw # youtube sentdex
-
-
-
-
-
+#https://www.youtube.com/watch?v=yMR45cZbvDw # youtube sentdex this guy had some pretty sweet tutorials on tkinter and object oriented programming.
 
 class SampleApp(tk.Tk):
     """
-    window program
+    main window app
     """
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -38,7 +24,7 @@ class SampleApp(tk.Tk):
         for F in (
                 StartPage,
                 PageOne,
-                PlotPage,):
+                ):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -46,88 +32,13 @@ class SampleApp(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
         self.show_frame("PageOne")
     def show_frame(self, page_name):
-        """
-        docstring
-        """
-        '''Show a frame for the given page name'''
         frame = self.frames[page_name]
         frame.tkraise()
 
-class PlotPage(tk.Frame):
-    """
-    docstring
-    """
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-        self.x_name = tk.StringVar()
-        self.y_name = tk.StringVar()
-        self.x_data = tk.StringVar()
-        self.y_data = tk.StringVar()
-
-
-        tk.Button(
-            self, text="Back",
-            command=lambda: controller.show_frame("PageOne")
-            ).grid(column=0, row=0, sticky="W")
-        self.plotbutton = tk.Button(
-            self, text="Plot",
-            command=lambda: fitAndPlot(
-                PageOne.data[self.x_data.get()],
-                PageOne.data[self.y_data.get()]
-                )
-            )
-        PageOne.data = {"a":((1,2,3,4), (1,1,1,1)), "b":((2,4,5,6), (1,1,1,1))}
-        tk.Button(
-            self, text="more plot", command=lambda: self.makePlot() 
-            ).grid(column=0, row=1, sticky="W")
-        self.plotbutton.grid(column=0, row=2, sticky="W")
-        tk.Entry(self, textvariable=self.x_name).grid(column=1, row=3)
-        tk.Entry(self, textvariable=self.y_name).grid(column=1, row=4)
-        tk.Entry(self, textvariable=self.x_data).grid(column=1, row=5)
-        tk.Entry(self, textvariable=self.y_data).grid(column=1, row=6)
-        tk.Label(self, text="x Name").grid(column=0, row=3, sticky="W")
-        tk.Label(self, text="y Name").grid(column=0, row=4, sticky="W")
-        tk.Label(self, text="x Data").grid(column=0, row=5, sticky="W")
-        tk.Label(self, text="x Data").grid(column=0, row=6, sticky="W")
-        tk.Button(self, text="save", command=lambda: savefig(self.fig)).grid(column=0, row=7)
-        self.option_menu_y = tk.OptionMenu(self, self.x_data, *PageOne.data.keys())
-        self.option_menu_y.grid(column=0, row=8)
-
-        self.variable = tk.StringVar()
-        PlotPage.menu_y = self.option_menu_y["menu"]
-        PlotPage.menu_y.add("command", label="test", command=lambda value="test": self.x_data.set("test"))
-        """
-        while True:
-            self.option_menu_y.grid_forget()
-            self.option_menu_y = tk.OptionMenu(self, self.x_data, PageOne.data.keys())
-            self.option_menu_y.grid(column=0, row=8)
-            t.sleep(5)
-        """
-        """
-        self.opt = tk.OptionMenu(self, self.variable, *PageOne.data.keys())
-        self.opt.config(width=90, font=('Helvetica', 12))
-        self.opt.place(x=20, y=170, width=125, height=20)
-        """
-
-    def update_option_menu(self, menu, labels):
-        menu.delete(0, "end")
-        #print("test")
-        for label in labels:
-            menu.add("command", label=label, command=lambda value=label: self.x_data.set(label))
-
-    def makePlot(self):
-        """
-        dcostring
-        """
-        self.fig = tkinter_plot(
-                self, *PageOne.data[self.x_data.get()], *PageOne.data[self.y_data.get()],
-                self.x_name.get(), self.y_name.get()
-                )
 
 class StartPage(tk.Frame):
     """
-    docstring
+    start page of the app
     """
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -144,7 +55,7 @@ class StartPage(tk.Frame):
 
 class PageOne(tk.Frame):
     """
-    docstring
+    main page for uncertainty calculation
     """
     data = {}
     def __init__(self, parent, controller):
@@ -162,7 +73,6 @@ class PageOne(tk.Frame):
             command=lambda: self.FR()
             )
         d.grid(row=1, column=5)
-
         self.result_var = tk.StringVar()
         self.error_var = tk.StringVar()
         self.formula_var = tk.StringVar()
@@ -182,7 +92,6 @@ class PageOne(tk.Frame):
         self.plot_button = tk.Button(
             self, text="Plotten (WIP)", command=lambda: controller.show_frame("PlotPage")
             )
-        #self.plot_button.grid(row=2, column=1)
         self.calc_button = tk.Button(self, text="Calculate Result with Uncertainty", command=lambda: self.FR())
         self.calc_button.grid(row=3, column=1)
         tk.Label(self, text="Präsentiert von Camel Zigaretten").grid(row=0, column=1)
@@ -212,13 +121,11 @@ class PageOne(tk.Frame):
         docstring
         """
         F = self.formula_var.get()
-        #F = NIST_replace(F)
         if len(F):
             a = []
             for key in self.data.keys():
                 a.append(key in F and key != "")
             if all(a):
-                #if eat_string(F, self.data.keys()):
                 X = list_error_calc(self.data, F, roundput=self.roundput.get())
                 if self.v.get() == 1:
                     result = killchars(str(X[0]).strip("[]").replace(
@@ -241,17 +148,13 @@ class PageOne(tk.Frame):
                     else:
                         paste += str(x[i])+"\t"+str(err[i])+"\n"
                     i += 1
-                #xerox.copy(paste)
-                #print("pasted to clipboard")
             else:
                 print("Referenced nonexistent variables in function. Check variable names!")
-        PlotPage.update_option_menu(PlotPage, PlotPage.menu_y, self.data.keys())
 
     def Widgets(self, state):
         """
         docstring
         """
-
         if state == "add":
             self.row_number = self.row_number + 1
             if self.row_number > 3:
@@ -296,11 +199,7 @@ class PageOne(tk.Frame):
                 for slave in slaves:
                     if slave.grid_info()["row"] == i and slave.grid_info()["column"] == k:
                         if k <= 3:
-                            """
-                            replace designated physical constants with NIST values
-                            """
                             t = slave.get()
-                            #t = NIST_replace(t)
                             l.append(listifyString(t.strip(delimiter), delimiter))
                         if k == 4:
                             name = str(slave.get())
@@ -319,9 +218,7 @@ class PageOne(tk.Frame):
                 j += 1
             entries[name] = (x, ERR)
         PageOne.data = entries
-        #print(PageOne.data)
 
-#################################################################################################
 if __name__ == "__main__":
     try:
         app = SampleApp()
