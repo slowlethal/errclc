@@ -30,7 +30,6 @@ class SampleApp(tk.Tk):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
-        #scheißverfickter forloop
             frame.grid(row=0, column=0, sticky="nsew")
         self.show_frame("PageOne")
     def show_frame(self, page_name):
@@ -120,7 +119,7 @@ class PageOne(tk.Frame):
 
     def FR(self):
         """
-        docstring
+        main thingy to make the following values in the app happen.
         """
         F = self.formula_var.get()
         if len(F):
@@ -155,7 +154,7 @@ class PageOne(tk.Frame):
 
     def Widgets(self, state):
         """
-        docstring
+        main thingy to handle the adding and removing of columns from the app.
         """
         if state == "add":
             self.row_number = self.row_number + 1
@@ -187,7 +186,7 @@ class PageOne(tk.Frame):
 
     def getList(self, delimiter=","):
         """
-        docstring
+        thingy to retrieve the entered data from the app input widgets.
         """
         i = 3
         if self.v.get() == 1:
