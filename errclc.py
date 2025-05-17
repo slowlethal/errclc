@@ -5,7 +5,7 @@ import time as t
 import tkinter as tk
 import numpy as np
 
-from fehlerrechnung_funktionen import (roundwitherror, list_error_calc, listifyString, killchars, NIST_replace)
+from module import (roundwitherror, list_error_calc, listifyString, killchars, NIST_replace)
 
 #https://www.youtube.com/watch?v=yMR45cZbvDw # youtube sentdex this guy had some pretty sweet tutorials on tkinter and object oriented programming.
 #these constants are taken from the following document: https://doi.org/10.1103/RevModPhys.97.025002
