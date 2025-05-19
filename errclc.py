@@ -1,7 +1,7 @@
 """
 super duper uncertainty calculation
 """
-import time as t
+#import time as t
 import tkinter as tk
 import numpy as np
 

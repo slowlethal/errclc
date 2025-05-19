@@ -27,12 +27,12 @@ data={"var1":[[x1, x2, and so on... ], [xerr1, xerr2, and so on... ]],
 formula="var1/var2"
 data["newvar"]=list_error_calc(data, formula)
 """
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import math as m
 from math import sin, cos, tan, asin, acos, atan, exp, e, pi, log
 import numpy as np
-from scipy.optimize import curve_fit
-from sympy import *
+#from scipy.optimize import curve_fit
+#from sympy import *
 import json
 
 def load_json(filepath):
