@@ -48,9 +48,9 @@ class StartPage(tk.Frame):
         label.pack(side="top", fill="x", pady=100, padx=100)
         button1 = tk.Button(
             self, text="Uncertainty Calculator",
-            command=lambda: controller.show_frame("PageOne")
+            command=lambda: controller.show_frame("PageOne"), width=40
             )
-        quitbutton = tk.Button(self, text="quit", command=self.quit)
+        quitbutton = tk.Button(self, text="quit", command=self.quit, width=40)
         button1.pack()
         quitbutton.pack()
 
@@ -81,7 +81,7 @@ class PageOne(tk.Frame):
         tk.Label(self, text="Result Value").grid(row=0, column=3)
         tk.Label(self, text="Result Uncertainty").grid(row=0, column=4)
         self.backbutton = tk.Button(
-            self, text="back", command=lambda: controller.show_frame("StartPage")
+            self, text="back", command=lambda: controller.show_frame("StartPage"),  width=30
             )
         self.backbutton.grid(row=1, column=1)
         self.formulaEntry = tk.Entry(self, textvariable=self.formula_var)
@@ -93,14 +93,14 @@ class PageOne(tk.Frame):
         self.plot_button = tk.Button(
             self, text="Plotten (WIP)", command=lambda: controller.show_frame("PlotPage")
             )
-        self.calc_button = tk.Button(self, text="Calculate Result with Uncertainty", command=lambda: self.FR())
+        self.calc_button = tk.Button(self, text="Calculate Result with Uncertainty", command=lambda: self.FR(), width=30)
         self.calc_button.grid(row=3, column=1)
         tk.Label(self, text="Präsentiert von Camel Zigaretten").grid(row=0, column=1)
-        self.addbutton = tk.Button(self, text="New Row", command=lambda: self.Widgets("add"))
+        self.addbutton = tk.Button(self, text="New Row", command=lambda: self.Widgets("add"), width=20)
         self.removebutton = tk.Button(
-            self, text="Remove Row", command=lambda: self.Widgets("remove")
+            self, text="Remove Row", command=lambda: self.Widgets("remove"), width=20
             )
-        self.testbutton = tk.Button(self, text="Confirm", command=lambda: self.getList())
+        self.testbutton = tk.Button(self, text="Confirm", command=lambda: self.getList(), width=30)
         self.label3 = tk.Label(self, text="Measured Value")
         self.label4 = tk.Label(self, text="Uncertainty")
         self.label7 = tk.Label(self, text="Name")
